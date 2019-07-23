@@ -8,6 +8,9 @@ using namespace std;
 bool canAllPatientsBeSeen(Vector<Doctor> &doctors,
                           Vector<Patient> &patients,
                           Map<string, Set<string>>& schedule);
+bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
+                          Vector<Patient> &patients,
+                          Map<string, Set<string>>& schedule);
 
 /**
  * Given a list of doctors and a list of patients, determines whether all the patients can
@@ -20,6 +23,24 @@ bool canAllPatientsBeSeen(Vector<Doctor> &doctors,
  * @return Whether or not a schedule was found.
  */
 bool canAllPatientsBeSeen(Vector<Doctor> &doctors,
+                          Vector<Patient> &patients,
+                          Map<string, Set<string>>& schedule) {
+    int totalHoursFree = 0;
+    for (int i = 0; i < doctors.size(); i ++) {
+        totalHoursFree += doctors[i].hoursFree;
+    }
+    int totalHoursNeeded = 0;
+    for (int i = 0; i < patients.size(); i ++) {
+        totalHoursNeeded += patients[i].hoursNeeded;
+    }
+    if (totalHoursNeeded > totalHoursFree) {
+        return false;
+    } else {
+        return canAllPatientsBeSeenHelper(doctors, patients, schedule);
+    }
+}
+
+bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
                           Vector<Patient> &patients,
                           Map<string, Set<string>>& schedule) {
     if (patients.size() == 0) {
