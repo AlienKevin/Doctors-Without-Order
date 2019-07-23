@@ -2,11 +2,16 @@
 #include "map.h"
 #include <climits>
 #include <iostream>
+#include <chrono>
 using namespace std;
 
 /* * * * Doctors Without Orders * * * */
 bool canAllPatientsBeSeen(Vector<Doctor> &doctors,
                           Vector<Patient> &patients,
+                          Map<string, Set<string>>& schedule);
+bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
+                          const Vector<Patient> &patients,
+                          Set<int> &handledPatients,
                           Map<string, Set<string>>& schedule);
 
 /**
@@ -22,24 +27,32 @@ bool canAllPatientsBeSeen(Vector<Doctor> &doctors,
 bool canAllPatientsBeSeen(Vector<Doctor> &doctors,
                           Vector<Patient> &patients,
                           Map<string, Set<string>>& schedule) {
-    if (patients.size() == 0) {
+    Set<int> handledPatients;
+    return canAllPatientsBeSeenHelper(doctors, patients, handledPatients, schedule);
+}
+
+bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
+                          const Vector<Patient> &patients,
+                          Set<int> &handledPatients,
+                          Map<string, Set<string>>& schedule) {
+    if (handledPatients.size() == patients.size()) {
         return true;
     }
     bool findMatch = false;
     for (int i = 0; i < patients.size(); i ++) {
         for (int j = 0; j < doctors.size(); j ++) {
-            Patient patient = patients[i];
-            if (doctors[j].hoursFree >= patients[i].hoursNeeded) {
+            if (!handledPatients.contains(i) && doctors[j].hoursFree >= patients[i].hoursNeeded) {
+                Patient patient = patients[i];
                 // change
                 doctors[j].hoursFree -= patients[i].hoursNeeded;
-                patients.remove(i);
+                handledPatients.add(i);
                 // explore
-                if (canAllPatientsBeSeen(doctors, patients, schedule)) {
+                if (canAllPatientsBeSeenHelper(doctors, patients, handledPatients, schedule)) {
                     schedule[doctors[j].name].add(patient.name);
                     findMatch = true;
                 }
                 // un-change
-                patients.insert(i, patient);
+                handledPatients.remove(i);
                 doctors[j].hoursFree += patient.hoursNeeded;
 
                 if (findMatch) {
