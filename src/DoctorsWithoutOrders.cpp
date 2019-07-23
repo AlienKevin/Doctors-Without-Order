@@ -1,3 +1,10 @@
+/**
+ * Doctors Without Order assignment for CS106B at Stanford Summer Session 2019.
+ * Author: Kevin Li
+ * Description: This program takes as input a list of available doctors, a list of available patients,
+ * then returns whether it's possible to schedule all the patients so that each one is seen by a doctor
+ * for the appropriate amount of time
+ */
 #include "DoctorsWithoutOrders.h"
 #include "map.h"
 #include <climits>
@@ -40,6 +47,13 @@ bool canAllPatientsBeSeen(Vector<Doctor> &doctors,
     }
 }
 
+/**
+ * @brief Helper function for canAllPatientsBeSeen that does recursive backtracking
+ * @param doctors  The list of the doctors available to work.
+ * @param patients The list of the patients that need to be seen.
+ * @param schedule An outparameter that will be filled in with the schedule, should one exist.
+ * @return Whether or not a schedule was found.
+ */
 bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
                           Vector<Patient> &patients,
                           Map<string, Set<string>>& schedule) {
