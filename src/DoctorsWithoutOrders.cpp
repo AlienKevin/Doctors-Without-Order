@@ -2,17 +2,12 @@
 #include "map.h"
 #include <climits>
 #include <iostream>
-#include <chrono>
 using namespace std;
 
 /* * * * Doctors Without Orders * * * */
 bool canAllPatientsBeSeen(Vector<Doctor> &doctors,
                           Vector<Patient> &patients,
                           Map<string, Set<string>>& schedule);
-bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
-                                const Vector<Patient> &patients,
-                                Set<int> &handledPatients,
-                                Map<string, Set<string>>& schedule);
 
 /**
  * Given a list of doctors and a list of patients, determines whether all the patients can
@@ -27,51 +22,24 @@ bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
 bool canAllPatientsBeSeen(Vector<Doctor> &doctors,
                           Vector<Patient> &patients,
                           Map<string, Set<string>>& schedule) {
-    // Use auto keyword to avoid typing long
-    // type definitions to get the timepoint
-    // at this instant use function now()
-    auto start = chrono::high_resolution_clock::now();
-
-    Set<int> handledPatients;
-    bool result = canAllPatientsBeSeenHelper(doctors, patients, handledPatients, schedule);
-
-    // After function call
-    auto stop = chrono::high_resolution_clock::now();
-    // Subtract stop and start timepoints and
-    // cast it to required unit. Predefined units
-    // are nanoseconds, microseconds, milliseconds,
-    // seconds, minutes, hours. Use duration_cast()
-    // function.
-    auto duration = chrono::duration_cast<chrono::seconds>(stop - start);
-    // To get the value of duration use the count()
-    // member function on the duration object
-    cout << duration.count() << endl;
-
-    return result;
-}
-
-bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
-                                const Vector<Patient> &patients,
-                                Set<int> &handledPatients,
-                                Map<string, Set<string>>& schedule) {
-    if (handledPatients.size() == patients.size()) {
+    if (patients.size() == 0) {
         return true;
     }
     bool findMatch = false;
     for (int i = 0; i < patients.size(); i ++) {
         for (int j = 0; j < doctors.size(); j ++) {
-            if (!handledPatients.contains(i) && doctors[j].hoursFree >= patients[i].hoursNeeded) {
-                Patient patient = patients[i];
+            Patient patient = patients[i];
+            if (doctors[j].hoursFree >= patients[i].hoursNeeded) {
                 // change
                 doctors[j].hoursFree -= patients[i].hoursNeeded;
-                handledPatients.add(i);
+                patients.remove(i);
                 // explore
-                if (canAllPatientsBeSeenHelper(doctors, patients, handledPatients, schedule)) {
+                if (canAllPatientsBeSeen(doctors, patients, schedule)) {
                     schedule[doctors[j].name].add(patient.name);
                     findMatch = true;
                 }
                 // un-change
-                handledPatients.remove(i);
+                patients.insert(i, patient);
                 doctors[j].hoursFree += patient.hoursNeeded;
 
                 if (findMatch) {
