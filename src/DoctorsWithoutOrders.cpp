@@ -8,9 +8,6 @@ using namespace std;
 bool canAllPatientsBeSeen(Vector<Doctor> &doctors,
                           Vector<Patient> &patients,
                           Map<string, Set<string>>& schedule);
-bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
-                                Vector<Patient> &patients,
-                                Map<string, Set<string>>& schedule);
 
 /**
  * Given a list of doctors and a list of patients, determines whether all the patients can
@@ -25,18 +22,10 @@ bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
 bool canAllPatientsBeSeen(Vector<Doctor> &doctors,
                           Vector<Patient> &patients,
                           Map<string, Set<string>>& schedule) {
-    Vector<Doctor> copiedDoctors = doctors;
-    Vector<Patient> copiedPatients = patients;
-    return canAllPatientsBeSeenHelper(copiedDoctors, copiedPatients, schedule);
-}
-
-bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
-                                Vector<Patient> &patients,
-                                Map<string, Set<string>>& schedule) {
-//    cout << "Calling canAllPatientsBeSeenHelper..." << endl;
     if (patients.size() == 0) {
         return true;
     }
+    bool findMatch = false;
     for (int i = 0; i < patients.size(); i ++) {
         for (int j = 0; j < doctors.size(); j ++) {
             Patient patient = patients[i];
@@ -45,19 +34,19 @@ bool canAllPatientsBeSeenHelper(Vector<Doctor> &doctors,
                 doctors[j].hoursFree -= patients[i].hoursNeeded;
                 patients.remove(i);
                 // explore
-                if (canAllPatientsBeSeenHelper(doctors, patients, schedule)) {
-//                    cout << "All patients can be seen!" << endl;
-//                    cout << doctors << endl;
-//                    cout << patients << endl;
+                if (canAllPatientsBeSeen(doctors, patients, schedule)) {
                     schedule[doctors[j].name].add(patient.name);
-                    return true;
+                    findMatch = true;
                 }
                 // un-change
                 patients.insert(i, patient);
                 doctors[j].hoursFree += patient.hoursNeeded;
+
+                if (findMatch) {
+                    return true;
+                }
             }
         }
     }
-//    cout << "NOT all patients can be seen!" << endl;
     return false;
 }
